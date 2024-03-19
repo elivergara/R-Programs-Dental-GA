@@ -172,7 +172,6 @@ for (k in names(all_sheets)) {
 }
 
 
-
 # Remove "Total" rows from long formatted dataframe
 all_sheets_long <- all_sheets_long %>%
     filter(!str_detect(Facility, "Total"))
@@ -440,4 +439,4 @@ setwd(project_dir)
 #############     EOF       ###########
 #######################################
 
-save(list = ls(.GlobalEnv), file = "assets.RData")
+# save(list = ls(.GlobalEnv), file = "assets.RData")
