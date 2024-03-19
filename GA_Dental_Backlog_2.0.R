@@ -160,15 +160,15 @@ for (k in names(all_sheets)) {
     # Pivoting the dataframe to long format
     pivoted_df <- all_sheets[[k]] %>%
         mutate(across(everything(), as.character)) %>% # Convert all columns to character to avoid data type issues
-        pivot_longer(cols = -Facility,
-                     # Selects all columns except `Facility`
-                     names_to = "Date",
-                     # New column for the dates
-                     values_to = "Value" # New column for the values) %>%
-                     mutate(Category = k) # Add a new column with the name of the sheet
-                     
-                     # Append the pivoted dataframe to the accumulating dataframe
-                     all_sheets_long <- bind_rows(all_sheets_long, pivoted_df)
+        pivot_longer(
+            cols = -Facility, # Selects all columns except `Facility`
+            names_to = "Date", # New column for the dates
+            values_to = "Value" # New column for the values
+        ) %>%
+        mutate(Category = k) # Add a new column with the name of the sheet
+    
+    # Append the pivoted dataframe to the accumulating dataframe
+    all_sheets_long <- bind_rows(all_sheets_long, pivoted_df)
 }
 
 
@@ -370,16 +370,17 @@ for (k in names(cleaned_aging_all_sheets)) {
     # Pivoting the dataframe to long format
     pivoted_aging <- cleaned_aging_all_sheets[[k]] %>%
         mutate(across(everything(), as.character)) %>% # Convert all columns to character to avoid data type issues
-        pivot_longer(cols = -Facility,
-                     # Selects all columns except `Facility`
-                     names_to = "Week",
-                     # New column for the dates
-                     values_to = "Value" # New column for the values) %>%
-                     mutate(Category = k) # Add a new column with the name of the sheet
-                     
-                     # Append the pivoted dataframe to the accumulating dataframe
-                     aging_long <- bind_rows(aging_long, pivoted_aging)
+        pivot_longer(
+            cols = -Facility, # Selects all columns except `Facility`
+            names_to = "Week", # New column for the dates
+            values_to = "Value" # New column for the values
+        ) %>%
+        mutate(Category = k) # Add a new column with the name of the sheet
+    
+    # Append the pivoted dataframe to the accumulating dataframe
+    aging_long <- bind_rows(aging_long, pivoted_aging)
 }
+
 
 
 
@@ -408,7 +409,6 @@ aging_long <- aging_long %>%
 # Convert Excel serial date numbers to Date format in R
 aging_long$Report_Date <-
     as.Date(as.numeric(aging_long$Report_Date), origin = "1899-12-30")
-
 
 
 #####################################################
