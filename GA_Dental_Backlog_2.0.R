@@ -404,7 +404,6 @@ aging_long <- aging_long %>%
     filter(!str_detect(Period, "Total"))
 
 
-
 # Convert 'Date' column from m/d/Y format to Date format
 # Convert Excel serial date numbers to Date format in R
 aging_long$Report_Date <-
