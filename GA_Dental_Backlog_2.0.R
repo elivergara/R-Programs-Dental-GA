@@ -435,6 +435,7 @@ writexl::write_xlsx(x = aggregated_aging, path = export_aggregated_aging_path)
 
 setwd(project_dir)
 
+print("End of program")
 #######################################
 #############     EOF       ###########
 #######################################
