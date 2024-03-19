@@ -399,7 +399,6 @@ aging_long <- aging_long %>%
     ) # Set to TRUE if you want to remove the original column
 
 
-
 # Remove "Total" rows from long formatted dataframe
 aging_long <- aging_long %>%
     filter(!str_detect(Period, "Total"))
