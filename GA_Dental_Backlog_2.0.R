@@ -181,14 +181,15 @@ all_sheets_long <- all_sheets_long %>%
 all_sheets_long <- all_sheets_long %>%
     mutate(Date = mdy(Date))
 
-
+# Convert Values to numeric prior to export
+all_sheets_long$Value <- as.numeric(all_sheets_long$Value)
 
 #####################################################
 # Export data in long format
 ####################################################
 # Export final dataframe into excel
 export_file_path <-
-    file.path(paths$exports_path, "Dental_long_data.xlsx")
+    file.path(paths$exports_path, "Weekly_Backlog_long_data.xlsx")
 writexl::write_xlsx(x = all_sheets_long, path = export_file_path)
 
 
@@ -202,9 +203,10 @@ aggregated_data <- all_sheets_long %>%
 # Convert Date to character for easier formatting
 # aggregated_data$Date <- as.character(aggregated_data$Date)
 
+
 # Export aggregated data to Excel
 export_file_path_aggregated <-
-    file.path(paths$exports_path, "Date_aggregated_data.xlsx")
+    file.path(paths$exports_path, "Weekly_Backlog_Date_aggregated_data.xlsx")
 writexl::write_xlsx(x = aggregated_data, path = export_file_path_aggregated)
 
 
@@ -409,7 +411,8 @@ aging_long <- aging_long %>%
 aging_long$Report_Date <-
     as.Date(as.numeric(aging_long$Report_Date), origin = "1899-12-30")
 
-
+# Convert Values to numeric prior to export
+aging_long$Value <- as.numeric(aging_long$Value)
 #####################################################
 # Export data in long format
 ####################################################
