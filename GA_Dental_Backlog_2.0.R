@@ -7,7 +7,7 @@
 # Revisions (include date, author, and description of revisions):
 # 1.0 Init. ~ GA_Dental_Backlog_1.0.R
 # 1.5 14MAR2024, Eli Vergara, adding second part, to import Sick Call Aging
-# 2.0 18MAR2024 Eli Vergara, completed code to export weekly backlog and aging report, and two aggregated data files 
+# 2.0 18MAR2024 Eli Vergara, completed code to export weekly backlog and aging report, and two aggregated data files
 ###############################################################################
 # SET the environment
 ###############################################################################
@@ -49,20 +49,23 @@ paths <- set_paths()
 # ... and use the variable to access in_hsr_path
 setwd(paths$rawdata)
 
-
 ####################################################
-# Weekly Backlog 
+# Weekly Backlog
 ####################################################
 # Work with weekly_backlog_files_list. Retrieve the latest one for import
 #####################################################
 # Generate files lists for backlog files and also for aging reports
 # List files without filtering
-weekly_backlog_files_list <- list.files(pattern = "Weekly Backlog", full.names = FALSE)
-aging_report_files_list <- list.files(pattern = "Aging Report", full.names = FALSE)
+weekly_backlog_files_list <-
+    list.files(pattern = "Weekly Backlog", full.names = FALSE)
+aging_report_files_list <-
+    list.files(pattern = "Aging Report", full.names = FALSE)
 
 # Filter out files that start with '~'
-weekly_backlog_files_list <- weekly_backlog_files_list[!grepl("^~", weekly_backlog_files_list)]
-aging_report_files_list <- aging_report_files_list[!grepl("^~", aging_report_files_list)]
+weekly_backlog_files_list <-
+    weekly_backlog_files_list[!grepl("^~", weekly_backlog_files_list)]
+aging_report_files_list <-
+    aging_report_files_list[!grepl("^~", aging_report_files_list)]
 
 
 
@@ -73,7 +76,9 @@ extract_date <- function(filename) {
     date_pattern_underscore <- "\\d{1,2}_\\d{1,2}_\\d{2,4}"
     
     # Search for date patterns using regular expressions
-    date_string <- str_extract(filename, paste(date_pattern_dot, date_pattern_underscore, sep = "|"))
+    date_string <-
+        str_extract(filename,
+                    paste(date_pattern_dot, date_pattern_underscore, sep = "|"))
     
     # Determine the format based on the separator
     if (grepl("_", date_string)) {
@@ -133,7 +138,7 @@ for (i in 1:length(all_sheets)) {
     colnames(all_sheets[[i]]) <- all_col_names
     
     # Step 4: Now, remove the first row as it's been used to set column names
-    all_sheets[[i]] <- all_sheets[[i]][-1, ]
+    all_sheets[[i]] <- all_sheets[[i]][-1,]
 }
 
 ########################################################
@@ -141,8 +146,8 @@ for (i in 1:length(all_sheets)) {
 ######################################################
 # Cast all columns into character type so we can pivot them
 for (j in 1:length(all_sheets)) {
-all_sheets[[j]] <- all_sheets[[j]] %>%
-    mutate(across(-Facility, as.character))
+    all_sheets[[j]] <- all_sheets[[j]] %>%
+        mutate(across(-Facility, as.character))
 }
 
 
@@ -152,18 +157,18 @@ all_sheets_long <- tibble()
 names(all_sheets) <- excel_sheets(latest_file)
 
 for (k in names(all_sheets)) {
-# Pivoting the dataframe to long format
+    # Pivoting the dataframe to long format
     pivoted_df <- all_sheets[[k]] %>%
         mutate(across(everything(), as.character)) %>% # Convert all columns to character to avoid data type issues
-        pivot_longer(
-            cols = -Facility, # Selects all columns except `Facility`
-            names_to = "Date", # New column for the dates
-            values_to = "Value" # New column for the values
-        ) %>%
-        mutate(Category = k) # Add a new column with the name of the sheet
-    
-    # Append the pivoted dataframe to the accumulating dataframe
-    all_sheets_long <- bind_rows(all_sheets_long, pivoted_df)
+        pivot_longer(cols = -Facility,
+                     # Selects all columns except `Facility`
+                     names_to = "Date",
+                     # New column for the dates
+                     values_to = "Value" # New column for the values) %>%
+                     mutate(Category = k) # Add a new column with the name of the sheet
+                     
+                     # Append the pivoted dataframe to the accumulating dataframe
+                     all_sheets_long <- bind_rows(all_sheets_long, pivoted_df)
 }
 
 
@@ -176,14 +181,15 @@ all_sheets_long <- all_sheets_long %>%
 # Convert 'Date' column from m/d/Y format to Date format
 all_sheets_long <- all_sheets_long %>%
     mutate(Date = mdy(Date))
-    
+
 
 
 #####################################################
 # Export data in long format
 ####################################################
 # Export final dataframe into excel
-export_file_path <- file.path(paths$exports_path, "Dental_long_data.xlsx")
+export_file_path <-
+    file.path(paths$exports_path, "Dental_long_data.xlsx")
 writexl::write_xlsx(x = all_sheets_long, path = export_file_path)
 
 
@@ -198,7 +204,8 @@ aggregated_data <- all_sheets_long %>%
 # aggregated_data$Date <- as.character(aggregated_data$Date)
 
 # Export aggregated data to Excel
-export_file_path_aggregated <- file.path(paths$exports_path, "Date_aggregated_data.xlsx")
+export_file_path_aggregated <-
+    file.path(paths$exports_path, "Date_aggregated_data.xlsx")
 writexl::write_xlsx(x = aggregated_data, path = export_file_path_aggregated)
 
 
@@ -223,27 +230,37 @@ latest_aging_index <- which.max(aging_dates)
 
 
 
-# Import the latest Aging Report 
+# Import the latest Aging Report
 latest_aging <- aging_report_files_list[latest_aging_index]
 
 # Read the data from all sheets from the latest file:
 aging_all_sheets <-
     setNames(lapply(excel_sheets(latest_aging), function(sheet)
-        read_excel(latest_aging, sheet = sheet, skip = 3,  col_names = FALSE)),
+        read_excel(
+            latest_aging,
+            sheet = sheet,
+            skip = 3,
+            col_names = FALSE
+        )),
         excel_sheets(latest_aging))
 
 for (j in 1:length(aging_all_sheets)) {
     aging_all_sheets[[j]] <- aging_all_sheets[[j]] %>%
         rename(Facility = 1) %>%
-        mutate(across(-Facility)) 
-   
+        mutate(across(-Facility))
+    
 }
 
 
 # Now, read the headers. We want only the headers to use later for naming the columns
 aging_headers <-
     setNames(lapply(excel_sheets(latest_aging), function(sheet)
-        read_excel(latest_aging, sheet = sheet, n_max = 3, col_names = FALSE)),
+        read_excel(
+            latest_aging,
+            sheet = sheet,
+            n_max = 3,
+            col_names = FALSE
+        )),
         excel_sheets(latest_aging))
 
 
@@ -280,13 +297,17 @@ for (m in 1:length(aging_headers)) {
 
 # Function to combine three elements into a single string separated by underscores
 
-for (a in 1:length(aging_headers)){
-    for (b in 1:ncol(aging_headers[[a]])){
-        new_header <-   paste(aging_headers[[a]][1, ], aging_headers[[a]][2, ], aging_headers[[a]][3, ], sep = "_")
+for (a in 1:length(aging_headers)) {
+    for (b in 1:ncol(aging_headers[[a]])) {
+        new_header <-
+            paste(aging_headers[[a]][1,],
+                  aging_headers[[a]][2,],
+                  aging_headers[[a]][3,],
+                  sep = "_")
         names(aging_headers[[a]]) <- new_header
-       
+        
     }
-    aging_headers[[a]] <- aging_headers[[a]][FALSE,]
+    aging_headers[[a]] <- aging_headers[[a]][FALSE, ]
 }
 
 
@@ -297,17 +318,18 @@ for (a in 1:length(aging_headers)){
 for (f in seq_along(aging_all_sheets)) {
     # Extract the column names from the corresponding dataframe in aging_headers
     new_headers <- colnames(aging_headers[[f]])
-        # Replace the column names in the dataframe from aging_all_sheets with new_headers
+    # Replace the column names in the dataframe from aging_all_sheets with new_headers
     colnames(aging_all_sheets[[f]]) <- new_headers
 }
 
 
 
-    
+
 # Use lapply with an anonymous function to process each dataframe
 cleaned_aging_all_sheets <- lapply(aging_all_sheets, function(df) {
     # Identify the row with the word "Total"
-    total_row_index <- which(df$Facility_Facility_Facility == "Total")
+    total_row_index <-
+        which(df$Facility_Facility_Facility == "Total")
     
     # Assuming you want to keep columns that are non-numeric or don't have a 0 in the 'Total' row
     cols_to_keep <- sapply(df, function(column) {
@@ -315,24 +337,14 @@ cleaned_aging_all_sheets <- lapply(aging_all_sheets, function(df) {
     })
     
     # Adding TRUE for the 'Name' column or any other column you want to always keep
-    cols_to_keep[1] <- TRUE  # Assuming the first column is always 'Name' or similar
+    cols_to_keep[1] <-
+        TRUE  # Assuming the first column is always 'Name' or similar
     
     # Keep only the desired columns
     df <- df[, cols_to_keep]
     
     return(df)
 })
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -358,15 +370,15 @@ for (k in names(cleaned_aging_all_sheets)) {
     # Pivoting the dataframe to long format
     pivoted_aging <- cleaned_aging_all_sheets[[k]] %>%
         mutate(across(everything(), as.character)) %>% # Convert all columns to character to avoid data type issues
-        pivot_longer(
-            cols = -Facility, # Selects all columns except `Facility`
-            names_to = "Week", # New column for the dates
-            values_to = "Value" # New column for the values
-        ) %>%
-        mutate(Category = k) # Add a new column with the name of the sheet
-    
-    # Append the pivoted dataframe to the accumulating dataframe
-    aging_long <- bind_rows(aging_long, pivoted_aging)
+        pivot_longer(cols = -Facility,
+                     # Selects all columns except `Facility`
+                     names_to = "Week",
+                     # New column for the dates
+                     values_to = "Value" # New column for the values) %>%
+                     mutate(Category = k) # Add a new column with the name of the sheet
+                     
+                     # Append the pivoted dataframe to the accumulating dataframe
+                     aging_long <- bind_rows(aging_long, pivoted_aging)
 }
 
 
@@ -379,10 +391,12 @@ aging_long <- aging_long %>%
 
 # Separate the 'Week' column into three new columns
 aging_long <- aging_long %>%
-    separate(col = Week,
-             into = c("Report_Date", "Period", "Range"),
-             sep = "_",
-             remove = TRUE) # Set to TRUE if you want to remove the original column
+    separate(
+        col = Week,
+        into = c("Report_Date", "Period", "Range"),
+        sep = "_",
+        remove = TRUE
+    ) # Set to TRUE if you want to remove the original column
 
 
 
@@ -393,15 +407,10 @@ aging_long <- aging_long %>%
 
 
 
-
-
-
-
-
-
 # Convert 'Date' column from m/d/Y format to Date format
 # Convert Excel serial date numbers to Date format in R
-aging_long$Report_Date <- as.Date(as.numeric(aging_long$Report_Date), origin = "1899-12-30")
+aging_long$Report_Date <-
+    as.Date(as.numeric(aging_long$Report_Date), origin = "1899-12-30")
 
 
 
@@ -424,9 +433,11 @@ aggregated_aging <- aging_long %>%
 # aggregated_data$Date <- as.character(aggregated_data$Date)
 
 # Export aggregated data to Excel
-export_aggregated_aging_path <- file.path(paths$exports_path, "aging_date_aggregated_data.xlsx")
+export_aggregated_aging_path <-
+    file.path(paths$exports_path, "aging_date_aggregated_data.xlsx")
 writexl::write_xlsx(x = aggregated_aging, path = export_aggregated_aging_path)
 
+setwd(project_dir)
 
 #######################################
 #############     EOF       ###########
