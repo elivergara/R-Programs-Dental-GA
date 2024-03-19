@@ -1,7 +1,7 @@
 # CENTURION ENTERPRISE DATA SYSTEMS R HEADER
 # Project Name: Georgia Dental Backlog
 # R File Location/Name:////ashinfodata//Reports and Data//Programs//Georgia//Dental Reporting//R Programs
-# Purpose of File: Tidy data and turn to long format to be used in Excel Dahboard
+# Purpose of File: Tidy data and turn to long format to be used in Excel Dashboard
 # Authors: E. Vergara
 # Creation Date: 27FEB2024
 # Revisions (include date, author, and description of revisions):
